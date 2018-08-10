@@ -64,7 +64,27 @@ function register(req, res) {
 
 function login(req, res) {
   // implement user login
-}
+    const identity = req.body;
+
+  db('users')
+    .where({ username: identity.username})
+    .first()
+    .then(function(user){
+      const passwordsMatch = bcrypt.compareSync(
+          identity.password, user.password
+      );
+        if (user && passwordsMatch) {
+           const token = generateToken(user);
+          res.send(token);
+        } else {
+          return res.status(401).json({ error: 'Opps..Login unsuccessful, Please try again'});
+        }
+    })
+      .catch(function(error) {
+        res.send(500).json({ error });
+      })
+
+};
 
 function getJokes(req, res) {
   axios
