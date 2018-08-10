@@ -5,15 +5,37 @@ const cors = require('cors');
 const db = require('../database/dbConfig');
 const { authenticate } = require('./middlewares');
 
+const secret = require('../_secrets/keys');
+
 module.exports = server => {
   server.post('/api/register', register);
   server.post('/api/login', login);
   server.get('/api/jokes', authenticate, getJokes);
 };
 
+// configure jwt
+
+
+function generateToken(user) {
+  const payload = {
+    username: user.username,
+    password: user.password
+
+  };
+
+  const options = {
+    expiresIn: '1h',
+    jwtid: 'whitehairsucks',
+  };
+
+  return jwt.sign(payload, secret.jwtKey, options);
+}
+
+
 function register(req, res) {
   // implement user registration
-const user = req.body;
+
+  const user = req.body;
 
   // hash password
   const hash = bcrypt.hashSync(user.password, 10);
@@ -38,9 +60,6 @@ const user = req.body;
       res.status(500).json({ error });
     });
 };
-
-
-
 
 
 function login(req, res) {
