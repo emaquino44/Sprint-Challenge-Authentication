@@ -1,5 +1,8 @@
 const axios = require('axios');
-
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const db = require('../database/dbConfig');
 const { authenticate } = require('./middlewares');
 
 module.exports = server => {
@@ -10,7 +13,35 @@ module.exports = server => {
 
 function register(req, res) {
   // implement user registration
-}
+const user = req.body;
+
+  // hash password
+  const hash = bcrypt.hashSync(user.password, 10);
+  user.password = hash;
+
+  db('users')
+    .insert(user)
+    .then(function(ids) {
+      db('users')
+        .where({ id: ids[0] })
+        .first()
+        .then(user => {
+          // generate the token
+          const token = generateToken(user);
+          // req.session.username = user.username;
+
+          // attach the token to the response
+          res.status(201).json(token);
+        });
+    })
+    .catch(function(error) {
+      res.status(500).json({ error });
+    });
+};
+
+
+
+
 
 function login(req, res) {
   // implement user login

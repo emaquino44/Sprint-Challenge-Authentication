@@ -15,6 +15,13 @@ server.use(cors());
 
 configureRoutes(server);
 
+
+server.get('/', (req, res) => {
+  res.send('Hello World');
+});
+
+
+
 module.exports = {
   server,
 };
